@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>sqlweb</title>
+    
+    <link rel="stylesheet" href="./css/app.css">
+    
+  </head>
+
+  <body>
+
+    <div id="app">
+      <editor editor-id="input" content="SELECT * FROM " lang="sqlserver" theme="tomorrow"></editor>
+      
+
+      <div id="result_grid">
+        <table>
+          <tr v-for="r in results">
+
+
+          </tr>
+        </table>
+      </div>
+
+    </div>
+
+    <script src="./js/app.js"></script>
+  </body>
+</html>

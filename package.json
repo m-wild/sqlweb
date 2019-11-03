@@ -1,0 +1,14 @@
+{
+  "name": "sqlweb",
+  "version": "1.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "ace-builds": "^1.4.7",
+    "axios": "^0.19.0",
+    "lodash": "^4.17.15",
+    "vue": "^2.6.10"
+  },
+  "scripts": {
+    "serve": "parcel static/index.html"
+  }
+}
