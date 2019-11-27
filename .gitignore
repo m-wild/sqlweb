@@ -4,3 +4,4 @@ obj/
 dist/
 node_modules/
 .cache/
+.idea/

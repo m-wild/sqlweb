@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SqlWeb.Types;
 
-namespace sqlweb.Controllers
+namespace SqlWeb
 {
     [ApiController]
     [Route("/api")]
@@ -29,6 +30,23 @@ namespace sqlweb.Controllers
             };
 
             return Ok(results);
+        }
+
+
+        [HttpGet, Route("objects")]
+        public Dictionary<string, Objects> GetObjects()
+        {
+            using (var conn = new SqlConnection("Server=localhost,1433; Database=Testing; User ID=sa; Password=SQLServer2017;"))
+            {
+                conn.Open();
+                
+                var objects = new Dialect.SqlServer.SqlServer()
+                    .GetAllObjects(conn)
+                    .ToObjects();
+
+                return objects;
+            }
+            
         }
     }
 
