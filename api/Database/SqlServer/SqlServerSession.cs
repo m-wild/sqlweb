@@ -5,17 +5,26 @@ namespace SqlWeb.Database.SqlServer
 {
     public class SqlServerSession : ISession
     {
-        private readonly string connectionString;
+        private readonly SqlConnectionStringBuilder builder;
 
         public SqlServerSession(SqlConnectionStringBuilder builder)
         {
-            connectionString = builder.ToString();
+            this.builder = builder;
         }
-        
-        
+
+        public string CurrentDatabase()
+        {
+            return builder.InitialCatalog;
+        }
+
+        public void SwitchDatabase(string database)
+        {
+            builder.InitialCatalog = database;
+        }
+
         public IDbConnection Connection()
         {
-            var conn = new SqlConnection(connectionString);
+            var conn = new SqlConnection(builder.ToString());
             conn.Open();
             return conn;
         }

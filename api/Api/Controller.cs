@@ -47,7 +47,35 @@ namespace SqlWeb
                 SessionId = id.ToString(),
             });
         }
-        
+
+        [HttpGet, Route("databases")]
+        public IActionResult Databases()
+        {
+            var session = GetSession();
+            if (session == null)
+            {
+                return NotConnected();
+            }
+            
+            var database = databaseFactory.Database(session);
+
+            var databases = database.Databases();
+
+            return Ok(databases);
+        }
+
+        [HttpPost, Route("switchdb")]
+        public IActionResult SwitchDatabase([FromQuery] string db)
+        {
+            var session = GetSession();
+            if (session == null)
+            {
+                return NotConnected();
+            }
+            
+            session.SwitchDatabase(db);
+            return Ok();
+        }
        
         [HttpPost, Route("query")]
         public IActionResult RunQuery([FromForm] string query)

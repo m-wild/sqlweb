@@ -144,19 +144,17 @@ namespace SqlWeb.Database.SqlServer
             return (long) session.ExecuteScalar(query);
         }
 
-        private (string, string) GetSchemaAndTable(string value)
+        public Databases Databases()
         {
-            var chunks = value.Split('.');
-            if (chunks.Length == 1)
+            var query = "select name from sys.databases where database_id > 4;";
+            var results = session.Query(query);
+            
+            var databases = new Databases();
+            foreach (var row in results.Rows)
             {
-                return ("dbo", chunks[0]);
+                databases.Add((string) row[0]);
             }
-
-            return (chunks[0], chunks[1]);
+            return databases;
         }
     }
-
-
-
-
 }

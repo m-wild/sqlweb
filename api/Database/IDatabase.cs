@@ -13,5 +13,7 @@ namespace SqlWeb.Database
         Result TableRows(string table, RowsOptions opts);
 
         long TableRowsCount(string table, RowsOptions opts);
+        
+        Databases Databases();
     }
 }
