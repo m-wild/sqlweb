@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Data.SqlClient;
+﻿using System.Data.SqlClient;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -89,6 +88,22 @@ namespace SqlWeb
 
             return Ok(objects);
         }
+
+        [HttpGet, Route("tables/{table}")]
+        public IActionResult GetTableDefinition([FromRoute] string table)
+        {
+            var session = GetSession();
+            if (session == null)
+            {
+                return NotConnected();
+            }
+
+            var database = databaseFactory.Database(session);
+
+            var tableDefinition = database.TableDefinition(table);
+
+            return Ok(tableDefinition);
+        }
         
         [HttpGet, Route("tables/{table}/info")]
         public IActionResult GetTableInfo([FromRoute] string table)
@@ -104,6 +119,38 @@ namespace SqlWeb
             var tableInfo = database.TableInfo(table);
 
             return Ok(tableInfo);
+        }
+
+        [HttpGet, Route("tables/{table}/rows")]
+        public IActionResult GetTableRows([FromRoute] string table, [FromQuery] RowsOptions opts)
+        {
+            var session = GetSession();
+            if (session == null)
+            {
+                return NotConnected();
+            }
+
+            var database = databaseFactory.Database(session);
+
+            var tableRows = database.TableRows(table, opts);
+
+            var numRows = database.TableRowsCount(table, opts);
+
+            var numPages = numRows / opts.Limit;
+            if (numPages * opts.Limit < numRows)
+            {
+                numPages++;
+            }
+            
+            tableRows.Pagination = new Pagination
+            {
+                Rows = numRows,
+                Page = (opts.Offset / opts.Limit) + 1,
+                Pages = numPages,
+                PerPage = opts.Limit,
+            };
+
+            return Ok(tableRows);
         }
     }
 }

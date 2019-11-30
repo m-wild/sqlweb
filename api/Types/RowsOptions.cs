@@ -6,15 +6,15 @@
         public string Where { get; set; }
 
         // Number of rows to skip
-        public int Offset { get; set; }
+        public long Offset { get; set; } = 0;
 
         // Number of rows to fetch
-        public int Limit { get; set; }
+        public int Limit { get; set; } = 100;
 
         // Column to sort by
         public string SortColumn { get; set; }
 
         // Sort direction (ASC, DESC)
-        public string SortOrder { get; set; }
+        public string SortOrder { get; set; } = "ASC";
     }
 }
