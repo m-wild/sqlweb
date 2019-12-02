@@ -1,19 +1,19 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace SqlWeb.Types
 {
     public class Pagination
     {
-        [JsonProperty("rows_count")]
+        [JsonPropertyName("rows_count")]
         public long Rows { get; set; }
 
-        [JsonProperty("page")]
+        [JsonPropertyName("page")]
         public long Page { get; set; }
 
-        [JsonProperty("pages_count")]
+        [JsonPropertyName("pages_count")]
         public long Pages { get; set; }
 
-        [JsonProperty("per_page")]
+        [JsonPropertyName("per_page")]
         public long PerPage { get; set; }
     }
 }

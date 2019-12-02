@@ -1,26 +1,26 @@
 ﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace SqlWeb.Types
 {
     public class Objects
     {
-        [JsonProperty("table")]
+        [JsonPropertyName("table")]
         public List<string> Tables { get; } = new List<string>();
 
-        [JsonProperty("view")]
+        [JsonPropertyName("view")]
         public List<string> Views { get; } = new List<string>();
 
-        [JsonProperty("procedure")]
+        [JsonPropertyName("procedure")]
         public List<string> Procedures { get; } = new List<string>();
 
-        [JsonProperty("function")]
+        [JsonPropertyName("function")]
         public List<string> Functions { get; } = new List<string>();
         
-        [JsonProperty("materialized_view")]
+        [JsonPropertyName("materialized_view")]
         public List<string> MaterializedViews { get; } = new List<string>();
 
-        [JsonProperty("sequence")]
+        [JsonPropertyName("sequence")]
         public List<string> Sequences { get; } = new List<string>();
     }
 }

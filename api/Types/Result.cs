@@ -1,17 +1,17 @@
 ﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace SqlWeb.Types
 {
     public class Result
     {
-        [JsonProperty("pagination")]
+        [JsonPropertyName("pagination")]
         public Pagination Pagination { get; set; }
 
-        [JsonProperty("columns")]
+        [JsonPropertyName("columns")]
         public List<string> Columns { get; set; } = new List<string>();
 
-        [JsonProperty("rows")]
+        [JsonPropertyName("rows")]
         public List<object[]> Rows { get; set; } = new List<object[]>();
 
         public void SetRowsAffected(int rows)

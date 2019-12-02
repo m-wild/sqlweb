@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SqlWeb.Database;
+using SqlWeb.Persistence;
 
 namespace SqlWeb
 {
@@ -29,8 +30,12 @@ namespace SqlWeb
             services.AddControllers().AddJsonOptions(opts => opts.JsonSerializerOptions.IgnoreNullValues = true);
             services.AddSpaStaticFiles(staticFiles => staticFiles.RootPath = "wwwroot");
 
+            services.AddOptions();
+
             services.AddScoped<IDatabaseFactory, DatabaseFactory>();
             services.AddScoped<ISessionStore, InMemorySessionStore>();
+            services.AddScoped<ISessionFactory, SessionFactory>();
+            services.AddScoped<IResourceStoreFactory, ResourceStoreFactory>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

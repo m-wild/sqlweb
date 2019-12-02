@@ -2,9 +2,9 @@
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using SqlWeb.Database;
 using SqlWeb.Database.SqlServer;
+using SqlWeb.Persistence;
 using SqlWeb.Types;
 
 namespace SqlWeb
@@ -15,12 +15,20 @@ namespace SqlWeb
     {
         private readonly ISessionStore sessionStore;
         private readonly IDatabaseFactory databaseFactory;
+        private readonly IResourceStoreFactory resourceStoreFactory;
+        private readonly ISessionFactory sessionFactory;
         private readonly ILogger logger;
 
-        public Controller(ILoggerFactory logger, ISessionStore sessionStore, IDatabaseFactory databaseFactory)
+        public Controller(ILoggerFactory logger, 
+            ISessionStore sessionStore, 
+            IDatabaseFactory databaseFactory, 
+            IResourceStoreFactory resourceStoreFactory, 
+            ISessionFactory sessionFactory)
         {
             this.sessionStore = sessionStore;
             this.databaseFactory = databaseFactory;
+            this.resourceStoreFactory = resourceStoreFactory;
+            this.sessionFactory = sessionFactory;
             this.logger = logger.CreateLogger("sqlweb");
         }
 
@@ -37,19 +45,15 @@ namespace SqlWeb
         private IActionResult QueryRequired() => BadRequest(new {status = 400, error = "Query parameter is required"});
         private IActionResult DbRequired() => BadRequest(new {status = 400, error = "Db parameter is required"});
         private IActionResult Error(string error) => BadRequest(new {status = 400, error});
+        private IActionResult OkSessionId(SessionId id) => Ok(new {session_id = id.ToString()});
         
         [HttpPost, Route("connect")]
-        public IActionResult Connect()
+        public IActionResult Connect([FromBody] ConnectRequest request)
         {
-            // dummy connection
-            var builder = new SqlConnectionStringBuilder("Server=localhost,1433; Database=Testing; User ID=sa; Password=SQLServer2017;");
-            var session = new SqlServerSession(builder);
+            var session = sessionFactory.Connect(request.Engine, request.ConnectionString);            
             var id = sessionStore.SaveSession(session);
-            
-            return Ok(new
-            {
-                SessionId = id.ToString(),
-            });
+
+            return OkSessionId(id);
         }
 
         [HttpGet, Route("databases")]
@@ -203,5 +207,32 @@ namespace SqlWeb
 
             return Ok(tableRows);
         }
+
+        [HttpGet, Route("resources")]
+        public IActionResult GetResources()
+        {
+            // todo: ensure authenticated
+            
+            var resourceStore = resourceStoreFactory.ResourceStore();
+            var resources = resourceStore.GetAllResources();
+            return Ok(resources);
+        }
+
+        [HttpPost, Route("connect/{resourceId}")]
+        public IActionResult ConnectResource([FromRoute] string resourceId)
+        {
+            var resourceStore = resourceStoreFactory.ResourceStore();
+            var resource = resourceStore.GetResource(resourceId);
+            if (resource == null)
+            {
+                return Error($"cannot connect to resource '{resourceId}'");
+            }
+
+            var session = sessionFactory.ConnectResource(resource);
+            var id = sessionStore.SaveSession(session);
+
+            return OkSessionId(id);
+        }
+        
     }
 }
