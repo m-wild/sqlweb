@@ -221,6 +221,8 @@ namespace SqlWeb
         [HttpPost, Route("connect/{resourceId}")]
         public IActionResult ConnectResource([FromRoute] string resourceId)
         {
+            // todo: ensure authenticated
+            
             var resourceStore = resourceStoreFactory.ResourceStore();
             var resource = resourceStore.GetResource(resourceId);
             if (resource == null)

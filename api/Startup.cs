@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using SqlWeb.Audit;
 using SqlWeb.Database;
 using SqlWeb.Persistence;
 
@@ -36,6 +37,7 @@ namespace SqlWeb
             services.AddScoped<ISessionStore, InMemorySessionStore>();
             services.AddScoped<ISessionFactory, SessionFactory>();
             services.AddScoped<IResourceStoreFactory, ResourceStoreFactory>();
+            services.AddScoped<IAuditLogFactory, AuditLogFactory>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

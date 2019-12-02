@@ -6,6 +6,8 @@
 
         public string ResourceStoreType { get; set; } = "sqlserver";
 
+        public string AuditLogType { get; set; } = "sqlserver";
+
         public string SqlServerConnectionString { get; set; } = "Data Source=localhost; Initial Catalog=sqlweb; User ID=sa; Password=SQLServer2017;";
     }
 }
