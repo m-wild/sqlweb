@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using SqlWeb.Database;
 using SqlWeb.Database.SqlServer;
 using SqlWeb.Types;
@@ -33,7 +34,10 @@ namespace SqlWeb
         }
 
         private IActionResult NotConnected() => BadRequest(new {status = 400, error = "Not connected"});
-
+        private IActionResult QueryRequired() => BadRequest(new {status = 400, error = "Query parameter is required"});
+        private IActionResult DbRequired() => BadRequest(new {status = 400, error = "Db parameter is required"});
+        private IActionResult Error(string error) => BadRequest(new {status = 400, error});
+        
         [HttpPost, Route("connect")]
         public IActionResult Connect()
         {
@@ -67,6 +71,11 @@ namespace SqlWeb
         [HttpPost, Route("switchdb")]
         public IActionResult SwitchDatabase([FromQuery] string db)
         {
+            if (string.IsNullOrWhiteSpace(db))
+            {
+                return DbRequired();
+            }
+            
             var session = GetSession();
             if (session == null)
             {
@@ -74,12 +83,27 @@ namespace SqlWeb
             }
             
             session.SwitchDatabase(db);
+
+            var database = databaseFactory.Database(session);
+
+            var err = database.Test();
+            if (err != null)
+            {
+                return Error(err);
+            }
+            
             return Ok();
         }
        
-        [HttpPost, Route("query")]
-        public IActionResult RunQuery([FromForm] string query)
+        [HttpGet, HttpPost, Route("query")]
+        public IActionResult RunQuery([FromBody] QueryRequest request)
         {
+            var query = request?.Query;
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                return QueryRequired();
+            }
+            
             var session = GetSession();
             if (session == null)
             {
@@ -87,16 +111,15 @@ namespace SqlWeb
             }
             
             logger.LogInformation(query);
-            
-            var results = new Result();
-            results.Columns.AddRange(new []{"id", "display_name"});
-            results.Rows.AddRange(new []
-            {
-                new object[]{ 1, "Hello" },
-                new object[]{ 2, "World" },
-                new object[]{ 666, "Goodbye" },
-            });
 
+            var database = databaseFactory.Database(session);
+
+            var (results, error) = database.RunQuery(query);
+            if (error != null)
+            {
+                return Error(error);
+            }
+            
             return Ok(results);
         }
 

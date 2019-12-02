@@ -1,5 +1,8 @@
+using System;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using SqlWeb.Types;
 
 namespace SqlWeb.Database.SqlServer
@@ -7,12 +10,29 @@ namespace SqlWeb.Database.SqlServer
     public class SqlServerDatabase : IDatabase
     {
         private readonly SqlServerSession session;
+        private readonly Options options;
 
-        public SqlServerDatabase(SqlServerSession session)
+        public SqlServerDatabase(SqlServerSession session, Options options)
         {
             this.session = session;
+            this.options = options;
         }
-        
+
+        public string Test()
+        {
+            try
+            {
+                var result = session.Query("SELECT 1");
+                return result.Rows[0][0] is int i && i == 1
+                    ? null
+                    : "failed to read results";
+            }
+            catch (Exception ex)
+            {
+                return ex.Message;
+            }
+        }
+
         public SchemaObjects Objects()
         {
             var objects = new SchemaObjects();
@@ -155,6 +175,52 @@ namespace SqlWeb.Database.SqlServer
                 databases.Add((string) row[0]);
             }
             return databases;
+        }
+        
+        
+        public (Result, string) RunQuery(string query)
+        {
+            var result = new Result();
+            // extra protection  
+            if (options.ReadOnly)
+            {
+                if (ContainsRestrictedKeywords(query))
+                {
+                    return (null, "query contains keywords that are not allowed in read-only mode");
+                }
+            }
+
+            try
+            {
+                // if this looks like an update, insert, or delete, we should return a row count rather than nothing.
+                if (UpdateInsertOrDelete.IsMatch(query))
+                {
+                    var affected = session.ExecuteNonQuery(query);
+                    result.SetRowsAffected(affected); 
+                    return (result, null);
+                }
+            
+                // otherwise just run the query
+                result = session.Query(query);
+                return (result, null);
+            }
+            catch (SqlException ex)
+            {
+                return (null, ex.Message);
+            }
+        }
+
+        private static readonly Regex UpdateInsertOrDelete = new Regex(@"\s?(UPDATE|INSERT|DELETE)\s", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+        private static readonly Regex RestrictedKeywords = new Regex(@"\s?(CREATE|ALTER|INSERT|DROP|DELETE|TRUNCATE|GRANT|REVOKE)\s", RegexOptions.Multiline | RegexOptions.IgnoreCase);
+        private static readonly Regex SlashComment = new Regex(@"\*.+\*", RegexOptions.Multiline);
+        private static readonly Regex DashComment = new Regex(@"--.+", RegexOptions.Multiline);
+
+        private bool ContainsRestrictedKeywords(string query)
+        {
+            query = SlashComment.Replace(query, "");
+            query = DashComment.Replace(query, "");
+
+            return RestrictedKeywords.IsMatch(query);
         }
     }
 }

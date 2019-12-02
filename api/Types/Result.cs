@@ -13,5 +13,14 @@ namespace SqlWeb.Types
 
         [JsonProperty("rows")]
         public List<object[]> Rows { get; set; } = new List<object[]>();
+
+        public void SetRowsAffected(int rows)
+        {
+            Columns.Clear();
+            Columns.Add("Rows Affected");
+            
+            Rows.Clear();
+            Rows.Add(new object[]{ rows });
+        }
     }
 }

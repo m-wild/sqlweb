@@ -15,7 +15,7 @@ namespace SqlWeb.Database
 
         public ISession GetSession(SessionId sessionId)
         {
-            return Sessions.TryGetValue(sessionId.Value, out var session)
+            return sessionId != null && Sessions.TryGetValue(sessionId.Value, out var session)
                 ? session
                 : null;
         }

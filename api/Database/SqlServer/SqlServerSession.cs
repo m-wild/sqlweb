@@ -10,6 +10,14 @@ namespace SqlWeb.Database.SqlServer
         public SqlServerSession(SqlConnectionStringBuilder builder)
         {
             this.builder = builder;
+
+            builder.ApplicationName = "sqlweb"; // todo: +version
+            
+            var readOnly = true;
+            if (readOnly)
+            {
+                builder.ApplicationIntent = ApplicationIntent.ReadOnly;
+            }
         }
 
         public string CurrentDatabase()

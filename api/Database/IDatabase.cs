@@ -4,6 +4,10 @@ namespace SqlWeb.Database
 {
     public interface IDatabase
     {
+        string Test();
+
+        (Result, string) RunQuery(string query);
+        
         SchemaObjects Objects();
 
         TableInfo TableInfo(string table);

@@ -58,5 +58,14 @@ namespace SqlWeb.Database
                 cmd.Parameters.Add(param);
             }
         }
+
+        public static int ExecuteNonQuery(this ISession session, string query)
+        {
+            using var conn = session.Connection();
+            using var cmd = conn.CreateCommand();
+            cmd.CommandText = query;
+
+            return cmd.ExecuteNonQuery();
+        }
     }
 }
