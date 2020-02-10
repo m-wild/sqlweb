@@ -2,6 +2,7 @@ import 'ace-builds/src-noconflict/ace';
 import 'ace-builds/src-noconflict/mode-sqlserver';
 import 'ace-builds/src-noconflict/theme-tomorrow';
 import 'ace-builds/src-noconflict/theme-github';
+// todo: have a look at https://codemirror.net/ instead of ace editor.
 
 import _ from 'lodash';
 import * as http from 'axios';
